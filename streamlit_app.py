@@ -55,7 +55,7 @@ class ColumnsSystem:
         elif 50 < landa <= 70:
             alpha = 0.6 * ((50 / landa)**2)
         else:
-            raise ValueError("Lambda exceeds 70. Column is too slender.")
+            raise ValueError("Lambda dépasse 70. Le poteau est trop élancé.")
 
         divisor = {"avant 90j": 1.10, "avant 28j": 1.20, "autre cas": 1.0}.get(charge, 1.0)
         alpha /= divisor
@@ -103,14 +103,14 @@ class FootingSystem:
                         hook_e_m = max(0.15, 12 * phi_m + 0.06)
                         
                         viable_options.append({
-                            "Selection": f"{count} HA {phi}",
-                            "Area (cm²)": round(actual_area, 2),
-                            "Spacing (cm)": round(actual_spacing * 100, 1),
-                            "Hook (m)": round(hook_e_m, 2),
-                            "Excess": round(excess_cm2, 2)
+                            "Sélection": f"{count} HA {phi}",
+                            "Section (cm²)": round(actual_area, 2),
+                            "Espacement (cm)": round(actual_spacing * 100, 1),
+                            "Crochet (m)": round(hook_e_m, 2),
+                            "Excès": round(excess_cm2, 2)
                         })
         
-        viable_options.sort(key=lambda x: x["Excess"])
+        viable_options.sort(key=lambda x: x["Excès"])
         return viable_options[:3]
 
     def design(self, a, b, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu"):
@@ -138,33 +138,32 @@ class FootingSystem:
         }
 
 # --- STREAMLIT UI ---
-st.set_page_config(page_title="Structural Design Pro", layout="wide")
+st.set_page_config(page_title="Conception Structurelle Pro", layout="wide")
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
-# Flipped the default order here
-app_mode = st.sidebar.radio("Select Module:", ["Column Designer", "Isolated Footing Designer"])
+app_mode = st.sidebar.radio("Sélectionner le module :", ["Calcul de Poteau", "Calcul de Semelle Isolée"])
 st.sidebar.divider()
 
-if app_mode == "Column Designer":
-    st.title("🏛️ Column Designer")
-    st.markdown("Automated BAEL formwork sizing and longitudinal steel calculation.")
+if app_mode == "Calcul de Poteau":
+    st.title("🏛️ Calcul de Poteau")
+    st.markdown("Dimensionnement automatique du coffrage et calcul des armatures longitudinales selon le BAEL.")
 
     with st.sidebar:
-        st.header("1. Input Parameters")
+        st.header("1. Paramètres d'Entrée")
         
-        with st.expander("Geometry Type", expanded=True):
-            shape = st.selectbox("Column Shape", ["Rectangular", "Circular"])
-            st_type = "rect" if shape == "Rectangular" else "circ"
-            lf_val = st.number_input("Buckling Length Lf (m)", value=3.00, step=0.10)
+        with st.expander("Type de Géométrie", expanded=True):
+            shape = st.selectbox("Forme du Poteau", ["Rectangulaire", "Circulaire"])
+            st_type = "rect" if shape == "Rectangulaire" else "circ"
+            lf_val = st.number_input("Longueur de flambement Lf (m)", value=3.00, step=0.10)
         
-        with st.expander("Loads", expanded=True):
+        with st.expander("Charges", expanded=True):
             nu_col = st.number_input("Nu (MN)", value=0.640, format="%.3f")
-            charge_duration = st.selectbox("Load Application", ["autre cas", "avant 90j", "avant 28j"])
+            charge_duration = st.selectbox("Application de la Charge", ["autre cas", "avant 90j", "avant 28j"])
             
-        with st.expander("Constrains", expanded=False):
-            fc28_val = st.number_input("Concrete fc28 (MPa)", value=25, step=5)
-            fe_col = st.selectbox("Steel Fe (MPa) ", [400, 500], index=1)
+        with st.expander("Contraintes", expanded=False):
+            fc28_val = st.number_input("Béton fc28 (MPa)", value=25, step=5)
+            fe_col = st.selectbox("Acier Fe (MPa) ", [400, 500], index=1)
             yb_val = st.number_input("Gamma_b", value=1.50)
             ys_col = st.number_input("Gamma_s ", value=1.15)
 
@@ -179,52 +178,52 @@ if app_mode == "Column Designer":
         steel = col_engine.design(Nu=nu_col, Lf=lf_val, geometry=geom, Yb=yb_val, Ys=ys_col, fe=fe_col, fc28=fc28_val, charge=charge_duration)
 
         # Column Dashboard
-        st.subheader("1. Formwork Dimensions")
+        st.subheader("1. Dimensions du Coffrage")
         c1, c2, c3 = st.columns(3)
         if st_type == "rect":
-            c1.metric("Width (a)", f"{geom['a']:.2f} m")
-            c2.metric("Length (b)", f"{geom['b']:.2f} m")
+            c1.metric("Largeur (a)", f"{geom['a']:.2f} m")
+            c2.metric("Longueur (b)", f"{geom['b']:.2f} m")
         else:
-            c1.metric("Diameter (D)", f"{geom['D']:.2f} m")
+            c1.metric("Diamètre (D)", f"{geom['D']:.2f} m")
             
-        c3.metric("Theoretical Br", f"{geom['Br_pre']:.4f} m²")
+        c3.metric("Section Théorique Br", f"{geom['Br_pre']:.4f} m²")
 
         st.divider()
 
-        st.subheader("2. Steel Reinforcement")
+        st.subheader("2. Ferraillage")
         sc1, sc2, sc3 = st.columns(3)
-        sc1.metric("Theoretical Area", f"{steel['sections_cm2']['As_theoretical']} cm²")
-        sc2.metric("Minimum Area", f"{steel['sections_cm2']['As_min']} cm²")
-        sc3.metric("Final Adopted Area", f"{steel['sections_cm2']['As_final']} cm²", delta="Execution Value", delta_color="off")
+        sc1.metric("Section Théorique", f"{steel['sections_cm2']['As_theoretical']} cm²")
+        sc2.metric("Section Minimale", f"{steel['sections_cm2']['As_min']} cm²")
+        sc3.metric("Section Finale Adoptée", f"{steel['sections_cm2']['As_final']} cm²", delta="Valeur d'exécution", delta_color="off")
 
         st.divider()
         
-        st.subheader("3. Verification Factors")
+        st.subheader("3. Facteurs de Vérification")
         st.json(steel['factors'])
 
     except ValueError as e:
-        st.error(f"Design Error: {e}")
+        st.error(f"Erreur de dimensionnement : {e}")
 
-elif app_mode == "Isolated Footing Designer":
-    st.title("🏗️ Isolated Footing Designer")
-    st.markdown("Professional BAEL tool for rapid dimensioning and rebar optimization.")
+elif app_mode == "Calcul de Semelle Isolée":
+    st.title("🏗️ Calcul de Semelle Isolée")
+    st.markdown("Outil professionnel BAEL pour le dimensionnement rapide et l'optimisation des armatures.")
 
     with st.sidebar:
-        st.header("1. Input Parameters")
+        st.header("1. Paramètres d'Entrée")
         
-        with st.expander("Column Dimensions (m)", expanded=True):
-            col_a = st.number_input("Width (a)", value=0.30, step=0.05)
-            col_b = st.number_input("Length (b)", value=0.40, step=0.05)
+        with st.expander("Dimensions du Poteau (m)", expanded=True):
+            col_a = st.number_input("Largeur (a)", value=0.30, step=0.05)
+            col_b = st.number_input("Longueur (b)", value=0.40, step=0.05)
         
-        with st.expander("Loads & Soil", expanded=True):
+        with st.expander("Charges et Sol", expanded=True):
             nu = st.number_input("Nu (MN)", value=0.462, format="%.3f")
             nser = st.number_input("Nser (MN)", value=0.334, format="%.3f")
-            sigma_sol = st.number_input("Soil Capacity (MPa)", value=0.25, step=0.05)
+            sigma_sol = st.number_input("Contrainte du Sol (MPa)", value=0.25, step=0.05)
         
-        with st.expander("Constrains", expanded=False):
-            fe = st.selectbox("Steel Fe (MPa)", [400, 500], index=1)
+        with st.expander("Contraintes", expanded=False):
+            fe = st.selectbox("Acier Fe (MPa)", [400, 500], index=1)
             ys = st.number_input("Gamma_s", value=1.15)
-            fiss = st.selectbox("Cracking Risk", ["peu", "prejudiciable", "tres_prejudiciable"])
+            fiss = st.selectbox("Fissuration", ["peu", "prejudiciable", "tres_prejudiciable"])
 
     # Footing Computation
     engine = FootingSystem()
@@ -232,30 +231,30 @@ elif app_mode == "Isolated Footing Designer":
 
     # Footing Dashboard
     c1, c2, c3 = st.columns(3)
-    c1.metric("Width (A)", f"{res['Geometry']['A']} m")
-    c2.metric("Length (B)", f"{res['Geometry']['B']} m")
-    c3.metric("Height (H)", f"{res['Geometry']['h']} m")
+    c1.metric("Largeur (A)", f"{res['Geometry']['A']} m")
+    c2.metric("Longueur (B)", f"{res['Geometry']['B']} m")
+    c3.metric("Hauteur (H)", f"{res['Geometry']['h']} m")
 
     st.divider()
 
     col_left, col_right = st.columns(2)
 
     with col_left:
-        st.subheader(f"Parallel to B ({res['Geometry']['B']}m)")
-        st.caption(f"Required Area: {res['Ab_req']:.2f} cm²")
+        st.subheader(f"Parallèle à B ({res['Geometry']['B']}m)")
+        st.caption(f"Section requise : {res['Ab_req']:.2f} cm²")
         if res['options_B']:
             df_b = pd.DataFrame(res['options_B'])
-            st.table(df_b.drop(columns=['Excess']))
+            st.table(df_b.drop(columns=['Excès']))
         else:
-            st.error("No viable rebar found for B.")
+            st.error("Aucune armature viable trouvée pour B.")
 
     with col_right:
-        st.subheader(f"Parallel to A ({res['Geometry']['A']}m)")
-        st.caption(f"Required Area: {res['Aa_req']:.2f} cm²")
+        st.subheader(f"Parallèle à A ({res['Geometry']['A']}m)")
+        st.caption(f"Section requise : {res['Aa_req']:.2f} cm²")
         if res['options_A']:
             df_a = pd.DataFrame(res['options_A'])
-            st.table(df_a.drop(columns=['Excess']))
+            st.table(df_a.drop(columns=['Excès']))
         else:
-            st.error("No viable rebar found for A.")
+            st.error("Aucune armature viable trouvée pour A.")
 
-    st.info("**Strategy:** Options are ranked by steel efficiency (least waste). The 'Hook' column indicates the standard anchorage length required.")
+    st.info("**Stratégie :** Les options sont classées par efficacité de l'acier (moins de pertes). La colonne 'Crochet (m)' indique la longueur d'ancrage standard requise.")
