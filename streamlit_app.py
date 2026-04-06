@@ -40,6 +40,7 @@ LANGUAGES = {
         "exec_val": "Valeur d'exécution",
         "res_factors": "3. Facteurs de Vérification",
         "design_err": "Erreur de conception :",
+        "rebar_options": "Options de Ferraillage (Longitudinal)",
         # Footing UI
         "foot_desc": "Outil professionnel BAEL pour le dimensionnement rapide et l'optimisation des armatures.",
         "foot_type": "Type de Semelle",
@@ -99,6 +100,7 @@ LANGUAGES = {
         "exec_val": "Execution Value",
         "res_factors": "3. Verification Factors",
         "design_err": "Design Error:",
+        "rebar_options": "Reinforcement Options (Longitudinal)",
         # Footing UI
         "foot_desc": "Professional BAEL tool for rapid dimensioning and rebar optimization.",
         "foot_type": "Footing Type",
@@ -158,6 +160,7 @@ LANGUAGES = {
         "exec_val": "قيمة التنفيذ",
         "res_factors": "3. عوامل التحقق",
         "design_err": "خطأ في التصميم:",
+        "rebar_options": "خيارات التسليح (الطولي)",
         # Footing UI
         "foot_desc": "أداة احترافية لحساب الأبعاد السريع وتحسين التسليح وفقاً لكود BAEL.",
         "foot_type": "نوع القاعدة",
@@ -190,8 +193,21 @@ if 'lang' not in st.session_state:
 def t(key):
     return LANGUAGES[st.session_state.lang].get(key, f"Missing translation: {key}")
 
-# --- LOGIC ENGINES (Untouched) ---
+def translate_df_columns(df):
+    """Utility to translate DataFrame headers dynamically"""
+    if st.session_state.lang == "العربية":
+        return df.rename(columns={"Selection": "الاختيار", "Area (cm²)": "المساحة (سم²)", "Spacing (cm)": "التباعد (سم)", "Excess": "الفائض", "Hook (m)": "الخطاف (م)"})
+    elif st.session_state.lang == "Français":
+        return df.rename(columns={"Selection": "Sélection", "Area (cm²)": "Section (cm²)", "Spacing (cm)": "Espacement (cm)", "Excess": "Excès", "Hook (m)": "Crochet (m)"})
+    return df
+
+# --- LOGIC ENGINES ---
 class ColumnsSystem:
+    def __init__(self):
+        self.standard_diameters = [12, 14, 16, 20]
+        self.min_spacing = 0.05 # 5 cm minimum spacing
+        self.max_spacing = 0.40 # 40 cm maximum spacing
+        
     def pre_design(self, Nu, Lf, Yb=1.5, landa=35, alpha=0.708, fc28=25, st_type="rect"):
         Br = ((0.9 * Yb) / alpha) * (Nu / fc28)
         if st_type == "rect":
@@ -204,6 +220,29 @@ class ColumnsSystem:
             D2 = ((4 * Lf) / landa)
             D = math.ceil(max(D1, D2) * 20) / 20
             return {"type": "circ", "a": None, "b": None, "D": D, "Br_pre": round(Br, 4)}
+
+    def generate_column_options(self, required_area_cm2, perimeter_m, is_circular=False):
+        possible_counts = [4, 6, 8, 10, 12, 14, 16, 20]
+        if is_circular:
+            # BAEL requires at least 6 bars for a circular column
+            possible_counts = [c for c in possible_counts if c >= 6]
+
+        viable = []
+        for count in possible_counts:
+            for phi in self.standard_diameters:
+                area = count * ((math.pi * (phi / 10)**2) / 4)
+                if area >= required_area_cm2:
+                    spacing = perimeter_m / count
+                    if self.min_spacing <= spacing <= self.max_spacing:
+                        viable.append({
+                            "Selection": f"{count} HA {phi}",
+                            "Area (cm²)": round(area, 2),
+                            "Spacing (cm)": round(spacing * 100, 1),
+                            "Excess": round(area - required_area_cm2, 2)
+                        })
+
+        viable.sort(key=lambda x: x["Excess"])
+        return viable[:5]
 
     def design(self, Nu, Lf, geometry, Yb=1.5, Ys=1.15, fe=500, fc28=25, charge="autre cas"):
         st_type = geometry["type"]
@@ -234,11 +273,14 @@ class ColumnsSystem:
         Amin = max(4 * perimeter_u, (0.2 / 100) * B_area * 10000)
         As_final = max(As_calc, Amin)
 
-        return {
-            "factors": {"Landa": round(landa, 3), "Alpha": round(alpha, 3), "Br_reel_m2": round(Br, 4)},
-            "sections_cm2": {"As_theoretical": round(As_calc, 2), "As_min": round(Amin, 2), "As_final": round(As_final, 2)}
-        }
+        options = self.generate_column_options(As_final, perimeter_u, is_circular=(st_type == "circ"))
 
+        return {
+            "factors": {"Landa": round(landa, 3), "Alpha": round(alpha, 3), "Br_m²": round(Br, 4)},
+            "sections_cm2": {"As_theoretical": round(As_calc, 2), "As_min": round(Amin, 2), "As_final": round(As_final, 2)},
+            "options": options
+        }
+    
 class FootingSystem:
     def __init__(self):
         self.standard_diameters = [8, 10, 12, 14, 16, 20]
@@ -265,7 +307,7 @@ class FootingSystem:
                         })
         
         viable_options.sort(key=lambda x: x["Excess"])
-        return viable_options[:3]
+        return viable_options[:5]
 
     def design_centered(self, a, b, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu"):
         B = math.ceil(math.sqrt((b/a) * (Nser/Gama_sol)) * 20) / 20
@@ -332,14 +374,12 @@ if app_mode == t("col_design"):
         st.header(t("input_params"))
         
         with st.expander(t("geom_type"), expanded=True):
-            # Pass engine keys ("rect", "circ") but display translated text
             st_type = st.selectbox(t("col_shape"), ["rect", "circ"], format_func=lambda x: t(f"shape_{x}"))
             lf_val = st.number_input(t("buckling_len"), value=3.00, step=0.10)
         
         with st.expander(t("loads_dur"), expanded=True):
             nu_col = st.number_input("Nu (MN)", value=0.640, format="%.3f")
             charge_duration = st.selectbox(t("load_app"), ["autre_cas", "avant_90j", "avant_28j"], format_func=lambda x: t(f"charge_{x}"))
-            # Clean string for the engine
             charge_engine = charge_duration.replace("_", " ") 
             
         with st.expander(t("mat_const"), expanded=False):
@@ -370,6 +410,16 @@ if app_mode == t("col_design"):
         sc1.metric(t("theo_sec"), f"{steel['sections_cm2']['As_theoretical']} cm²")
         sc2.metric(t("min_sec"), f"{steel['sections_cm2']['As_min']} cm²")
         sc3.metric(t("final_sec"), f"{steel['sections_cm2']['As_final']} cm²", delta=t("exec_val"), delta_color="off")
+        
+        # --- NEW UI FOR COLUMN REBAR OPTIONS ---
+        st.caption(t("rebar_options"))
+        if steel['options']:
+            df_col = pd.DataFrame(steel['options'])
+            df_col = translate_df_columns(df_col)
+            st.dataframe(df_col, use_container_width=True, hide_index=True)
+        else:
+            st.warning(t("no_rebar"))
+
         st.divider()
         
         st.subheader(t("res_factors"))
@@ -422,7 +472,8 @@ elif app_mode == t("foot_design"):
         st.caption(f"{t('req_area')} : {res['Ab_req']:.2f} cm²")
         if res['options_B']:
             df_b = pd.DataFrame(res['options_B'])
-            st.dataframe(df_b.drop(columns=['Excess']), use_container_width=True, hide_index=True)
+            df_b = translate_df_columns(df_b)
+            st.dataframe(df_b.drop(columns=[df_b.columns[-1]]), use_container_width=True, hide_index=True) # Drops Excess dynamically
         else:
             st.error(t("no_rebar"))
 
@@ -431,7 +482,8 @@ elif app_mode == t("foot_design"):
         st.caption(f"{t('req_area')} : {res['Aa_req']:.2f} cm²")
         if res['options_A']:
             df_a = pd.DataFrame(res['options_A'])
-            st.dataframe(df_a.drop(columns=['Excess']), use_container_width=True, hide_index=True)
+            df_a = translate_df_columns(df_a)
+            st.dataframe(df_a.drop(columns=[df_a.columns[-1]]), use_container_width=True, hide_index=True) # Drops Excess dynamically
         else:
             st.error(t("no_rebar"))
 
