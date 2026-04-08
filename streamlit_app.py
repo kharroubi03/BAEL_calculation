@@ -12,7 +12,7 @@ LANGUAGES = {
         "foot_design": "Dimensionnement Semelle Isolée",
         "lang_selector": "🌍 Langue",
         # Column UI
-        "col_desc": "Outil de dimensionnement BAEL automatisé pour coffrage et ferraillage longitudinal.",
+        "col_desc": "Outil de dimensionnement BAEL automatisé pour coffrage et ferraillage longitudinal et transversal.",
         "input_params": "1. Paramètres d'Entrée",
         "geom_type": "Type de Géométrie",
         "col_shape": "Forme du Poteau",
@@ -27,6 +27,9 @@ LANGUAGES = {
         "mat_const": "Contraintes Matériaux",
         "concrete_fc28": "Béton fc28 (MPa)",
         "steel_fe": "Acier Fe (MPa)",
+        "long_rebar": "Barres Longitudinales (Prévues)",
+        "phi_max": "Diamètre Max (Φ mm)",
+        "phi_min": "Diamètre Min (Φ mm)",
         # Column Results
         "res_formwork": "1. Dimensions du Coffrage",
         "width": "Largeur (a)",
@@ -38,9 +41,12 @@ LANGUAGES = {
         "min_sec": "Section Minimale",
         "final_sec": "Section Finale Adoptée",
         "exec_val": "Valeur d'exécution",
-        "res_factors": "3. Facteurs de Vérification",
+        "res_transverse": "3. Ferraillage Transversal",
+        "phi_t_label": "Diamètre des Cadres (Φt)",
+        "spacing": "Espacement courant (St)",
+        "spacing_crit": "Espacement zone de recouvrement",
+        "res_factors": "4. Facteurs de Vérification",
         "design_err": "Erreur de conception :",
-        "rebar_options": "Options de Ferraillage (Longitudinal)",
         # Footing UI
         "foot_desc": "Outil professionnel BAEL pour le dimensionnement rapide et l'optimisation des armatures.",
         "foot_type": "Type de Semelle",
@@ -72,7 +78,7 @@ LANGUAGES = {
         "foot_design": "Isolated Footing Designer",
         "lang_selector": "🌍 Language",
         # Column UI
-        "col_desc": "Automated BAEL formwork sizing and longitudinal steel calculation.",
+        "col_desc": "Automated BAEL formwork sizing, longitudinal, and transverse steel calculation.",
         "input_params": "1. Input Parameters",
         "geom_type": "Geometry Type",
         "col_shape": "Column Shape",
@@ -87,6 +93,9 @@ LANGUAGES = {
         "mat_const": "Material Constraints",
         "concrete_fc28": "Concrete fc28 (MPa)",
         "steel_fe": "Steel Fe (MPa)",
+        "long_rebar": "Planned Longitudinal Rebar",
+        "phi_max": "Max Diameter (Φ mm)",
+        "phi_min": "Min Diameter (Φ mm)",
         # Column Results
         "res_formwork": "1. Formwork Dimensions",
         "width": "Width (a)",
@@ -98,9 +107,12 @@ LANGUAGES = {
         "min_sec": "Minimum Area",
         "final_sec": "Final Adopted Area",
         "exec_val": "Execution Value",
-        "res_factors": "3. Verification Factors",
+        "res_transverse": "3. Transverse Reinforcement",
+        "phi_t_label": "Stirrup Diameter (Φt)",
+        "spacing": "Standard Spacing (St)",
+        "spacing_crit": "Overlap Zone Spacing",
+        "res_factors": "4. Verification Factors",
         "design_err": "Design Error:",
-        "rebar_options": "Reinforcement Options (Longitudinal)",
         # Footing UI
         "foot_desc": "Professional BAEL tool for rapid dimensioning and rebar optimization.",
         "foot_type": "Footing Type",
@@ -132,7 +144,7 @@ LANGUAGES = {
         "foot_design": "تصميم القواعد المنفصلة",
         "lang_selector": "🌍 اللغة",
         # Column UI
-        "col_desc": "أداة آلية لحساب أبعاد القوالب وحديد التسليح الطولي وفقاً لكود BAEL.",
+        "col_desc": "أداة آلية لحساب أبعاد القوالب وحديد التسليح الطولي والعرضي وفقاً لكود BAEL.",
         "input_params": "1. معلمات الإدخال",
         "geom_type": "نوع الهندسة",
         "col_shape": "شكل العمود",
@@ -147,6 +159,9 @@ LANGUAGES = {
         "mat_const": "قيود المواد",
         "concrete_fc28": "مقاومة الخرسانة fc28 (MPa)",
         "steel_fe": "إجهاد الخضوع للصلب Fe (MPa)",
+        "long_rebar": "التسليح الطولي المخطط",
+        "phi_max": "أقصى قطر (Φ مم)",
+        "phi_min": "أدنى قطر (Φ مم)",
         # Column Results
         "res_formwork": "1. أبعاد القالب",
         "width": "العرض (a)",
@@ -158,9 +173,12 @@ LANGUAGES = {
         "min_sec": "المساحة الدنيا",
         "final_sec": "المساحة النهائية المعتمدة",
         "exec_val": "قيمة التنفيذ",
-        "res_factors": "3. عوامل التحقق",
+        "res_transverse": "3. التسليح العرضي",
+        "phi_t_label": "قطر الكانات (Φt)",
+        "spacing": "التباعد العادي (St)",
+        "spacing_crit": "التباعد في منطقة التراكب",
+        "res_factors": "4. عوامل التحقق",
         "design_err": "خطأ في التصميم:",
-        "rebar_options": "خيارات التسليح (الطولي)",
         # Footing UI
         "foot_desc": "أداة احترافية لحساب الأبعاد السريع وتحسين التسليح وفقاً لكود BAEL.",
         "foot_type": "نوع القاعدة",
@@ -193,21 +211,8 @@ if 'lang' not in st.session_state:
 def t(key):
     return LANGUAGES[st.session_state.lang].get(key, f"Missing translation: {key}")
 
-def translate_df_columns(df):
-    """Utility to translate DataFrame headers dynamically"""
-    if st.session_state.lang == "العربية":
-        return df.rename(columns={"Selection": "الاختيار", "Area (cm²)": "المساحة (سم²)", "Spacing (cm)": "التباعد (سم)", "Excess": "الفائض", "Hook (m)": "الخطاف (م)"})
-    elif st.session_state.lang == "Français":
-        return df.rename(columns={"Selection": "Sélection", "Area (cm²)": "Section (cm²)", "Spacing (cm)": "Espacement (cm)", "Excess": "Excès", "Hook (m)": "Crochet (m)"})
-    return df
-
 # --- LOGIC ENGINES ---
 class ColumnsSystem:
-    def __init__(self):
-        self.standard_diameters = [12, 14, 16, 20]
-        self.min_spacing = 0.05 # 5 cm minimum spacing
-        self.max_spacing = 0.40 # 40 cm maximum spacing
-        
     def pre_design(self, Nu, Lf, Yb=1.5, landa=35, alpha=0.708, fc28=25, st_type="rect"):
         Br = ((0.9 * Yb) / alpha) * (Nu / fc28)
         if st_type == "rect":
@@ -220,29 +225,6 @@ class ColumnsSystem:
             D2 = ((4 * Lf) / landa)
             D = math.ceil(max(D1, D2) * 20) / 20
             return {"type": "circ", "a": None, "b": None, "D": D, "Br_pre": round(Br, 4)}
-
-    def generate_column_options(self, required_area_cm2, perimeter_m, is_circular=False):
-        possible_counts = [4, 6, 8, 10, 12, 14, 16, 20]
-        if is_circular:
-            # BAEL requires at least 6 bars for a circular column
-            possible_counts = [c for c in possible_counts if c >= 6]
-
-        viable = []
-        for count in possible_counts:
-            for phi in self.standard_diameters:
-                area = count * ((math.pi * (phi / 10)**2) / 4)
-                if area >= required_area_cm2:
-                    spacing = perimeter_m / count
-                    if self.min_spacing <= spacing <= self.max_spacing:
-                        viable.append({
-                            "Selection": f"{count} HA {phi}",
-                            "Area (cm²)": round(area, 2),
-                            "Spacing (cm)": round(spacing * 100, 1),
-                            "Excess": round(area - required_area_cm2, 2)
-                        })
-
-        viable.sort(key=lambda x: x["Excess"])
-        return viable[:5]
 
     def design(self, Nu, Lf, geometry, Yb=1.5, Ys=1.15, fe=500, fc28=25, charge="autre cas"):
         st_type = geometry["type"]
@@ -273,14 +255,33 @@ class ColumnsSystem:
         Amin = max(4 * perimeter_u, (0.2 / 100) * B_area * 10000)
         As_final = max(As_calc, Amin)
 
-        options = self.generate_column_options(As_final, perimeter_u, is_circular=(st_type == "circ"))
-
         return {
-            "factors": {"Landa": round(landa, 3), "Alpha": round(alpha, 3), "Br_m²": round(Br, 4)},
-            "sections_cm2": {"As_theoretical": round(As_calc, 2), "As_min": round(Amin, 2), "As_final": round(As_final, 2)},
-            "options": options
+            "factors": {"Landa": round(landa, 3), "Alpha": round(alpha, 3), "Br_reel_m2": round(Br, 4)},
+            "sections_cm2": {"As_theoretical": round(As_calc, 2), "As_min": round(Amin, 2), "As_final": round(As_final, 2)}
         }
-    
+
+    def design_transverse(self, phi_l_max, phi_l_min, a_m):
+        """
+        Calcule le diamètre et l'espacement des cadres selon le BAEL.
+        a_m : plus petite dimension du poteau en mètres.
+        """
+        phi_t = math.ceil((phi_l_max / 3))
+        # On normalise aux diamètres standards
+        if phi_t <= 6: phi_t = 6
+        elif phi_t <= 8: phi_t = 8
+        else: phi_t = 10
+        
+        # Espacement st <= min(15*phi_l_min, 40cm, a+10cm)
+        # Note: phi_l_min divided by 1000 to convert mm to meters.
+        st_max_m = min(15 * (phi_l_min / 1000), 0.40, a_m + 0.10)
+        st_final = math.floor(st_max_m * 100) # en cm
+        
+        return {
+            "phi_t": phi_t,
+            "st": st_final,
+            "st_recouv": math.floor(st_final / 1.5) # Règle forfaitaire zone critique
+        }
+
 class FootingSystem:
     def __init__(self):
         self.standard_diameters = [8, 10, 12, 14, 16, 20]
@@ -307,7 +308,7 @@ class FootingSystem:
                         })
         
         viable_options.sort(key=lambda x: x["Excess"])
-        return viable_options[:5]
+        return viable_options[:3]
 
     def design_centered(self, a, b, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu"):
         B = math.ceil(math.sqrt((b/a) * (Nser/Gama_sol)) * 20) / 20
@@ -387,12 +388,20 @@ if app_mode == t("col_design"):
             fe_col = st.selectbox(t("steel_fe"), [400, 500], index=1)
             yb_val = st.number_input("Gamma_b", value=1.50)
             ys_col = st.number_input("Gamma_s", value=1.15)
+            
+        with st.expander(t("long_rebar"), expanded=False):
+            phi_l_max = st.selectbox(t("phi_max"), [12, 14, 16, 20, 25], index=1)
+            phi_l_min = st.selectbox(t("phi_min"), [12, 14, 16, 20, 25], index=0)
 
     # Calculation
     col_engine = ColumnsSystem()
     try:
         geom = col_engine.pre_design(Nu=nu_col, Lf=lf_val, Yb=yb_val, fc28=fc28_val, st_type=st_type)
         steel = col_engine.design(Nu=nu_col, Lf=lf_val, geometry=geom, Yb=yb_val, Ys=ys_col, fe=fe_col, fc28=fc28_val, charge=charge_engine)
+        
+        # Calculate transverse steel
+        a_m = min(geom['a'], geom['b']) if st_type == 'rect' else geom['D']
+        trans_steel = col_engine.design_transverse(phi_l_max, phi_l_min, a_m)
 
         st.subheader(t("res_formwork"))
         c1, c2, c3 = st.columns(3)
@@ -410,16 +419,13 @@ if app_mode == t("col_design"):
         sc1.metric(t("theo_sec"), f"{steel['sections_cm2']['As_theoretical']} cm²")
         sc2.metric(t("min_sec"), f"{steel['sections_cm2']['As_min']} cm²")
         sc3.metric(t("final_sec"), f"{steel['sections_cm2']['As_final']} cm²", delta=t("exec_val"), delta_color="off")
+        st.divider()
         
-        # --- NEW UI FOR COLUMN REBAR OPTIONS ---
-        st.caption(t("rebar_options"))
-        if steel['options']:
-            df_col = pd.DataFrame(steel['options'])
-            df_col = translate_df_columns(df_col)
-            st.dataframe(df_col, use_container_width=True, hide_index=True)
-        else:
-            st.warning(t("no_rebar"))
-
+        st.subheader(t("res_transverse"))
+        tc1, tc2, tc3 = st.columns(3)
+        tc1.metric(t("phi_t_label"), f"{trans_steel['phi_t']} mm")
+        tc2.metric(t("spacing"), f"{trans_steel['st']} cm")
+        tc3.metric(t("spacing_crit"), f"{trans_steel['st_recouv']} cm")
         st.divider()
         
         st.subheader(t("res_factors"))
@@ -472,8 +478,7 @@ elif app_mode == t("foot_design"):
         st.caption(f"{t('req_area')} : {res['Ab_req']:.2f} cm²")
         if res['options_B']:
             df_b = pd.DataFrame(res['options_B'])
-            df_b = translate_df_columns(df_b)
-            st.dataframe(df_b.drop(columns=[df_b.columns[-1]]), use_container_width=True, hide_index=True) # Drops Excess dynamically
+            st.dataframe(df_b.drop(columns=['Excess']), use_container_width=True, hide_index=True)
         else:
             st.error(t("no_rebar"))
 
@@ -482,8 +487,7 @@ elif app_mode == t("foot_design"):
         st.caption(f"{t('req_area')} : {res['Aa_req']:.2f} cm²")
         if res['options_A']:
             df_a = pd.DataFrame(res['options_A'])
-            df_a = translate_df_columns(df_a)
-            st.dataframe(df_a.drop(columns=[df_a.columns[-1]]), use_container_width=True, hide_index=True) # Drops Excess dynamically
+            st.dataframe(df_a.drop(columns=['Excess']), use_container_width=True, hide_index=True)
         else:
             st.error(t("no_rebar"))
 
