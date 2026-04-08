@@ -279,7 +279,7 @@ class ColumnsSystem:
         return {
             "phi_t": phi_t,
             "st": st_final,
-            "st_recouv": f"{7}cm²" # Règle forfaitaire zone critique
+            "st_recouv": 7 # Règle forfaitaire zone critique
         }
 
 class FootingSystem:
