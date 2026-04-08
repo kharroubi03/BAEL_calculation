@@ -9,28 +9,28 @@ LANGUAGES = {
         "nav_title": "Navigation",
         "select_module": "Sélectionnez le Module :",
         "col_design": "Dimensionnement Poteau",
-        "foot_design": "Dimensionnement Semelle Isolée",
+        "foot_design": "Dimensionnement Semelles",
         "lang_selector": "🌍 Langue",
-        # Column UI
-        "col_desc": "Outil de dimensionnement BAEL automatisé pour coffrage et ferraillage longitudinal et transversal.",
+        # UI Base
         "input_params": "1. Paramètres d'Entrée",
         "geom_type": "Type de Géométrie",
+        "loads_dur": "Charges et Durée",
+        "mat_const": "Contraintes Matériaux",
+        "concrete_fc28": "Béton fc28 (MPa)",
+        "steel_fe": "Acier Fe (MPa)",
+        # Column UI
+        "col_desc": "Outil de dimensionnement BAEL automatisé pour coffrage et ferraillage longitudinal et transversal.",
         "col_shape": "Forme du Poteau",
         "shape_rect": "Rectangulaire",
         "shape_circ": "Circulaire",
         "buckling_len": "Longueur de flambement Lf (m)",
-        "loads_dur": "Charges et Durée",
         "load_app": "Application de la charge",
         "charge_autre_cas": "Autre cas (> 90 jours)",
         "charge_avant_90j": "Avant 90 jours",
         "charge_avant_28j": "Avant 28 jours",
-        "mat_const": "Contraintes Matériaux",
-        "concrete_fc28": "Béton fc28 (MPa)",
-        "steel_fe": "Acier Fe (MPa)",
         "long_rebar": "Barres Longitudinales (Prévues)",
         "phi_max": "Diamètre Max (Φ mm)",
         "phi_min": "Diamètre Min (Φ mm)",
-        # Column Results
         "res_formwork": "1. Dimensions du Coffrage",
         "width": "Largeur (a)",
         "length": "Longueur (b)",
@@ -46,58 +46,61 @@ LANGUAGES = {
         "phi_t_label": "Diamètre des Cadres (Φt)",
         "spacing": "Espacement courant (St)",
         "spacing_crit": "Espacement zone de recouvrement",
-        "res_factors": "4. Facteurs de Vérification",
+        "res_factors": "Facteurs de Vérification",
         "design_err": "Erreur de conception :",
         # Footing UI
-        "foot_desc": "Outil professionnel BAEL pour le dimensionnement rapide et l'optimisation des armatures.",
-        "foot_type": "Type de Semelle",
+        "foot_desc": "Outil professionnel BAEL pour semelles isolées (poteaux) et filantes (murs).",
+        "foot_cat": "Catégorie de Semelle",
+        "cat_iso": "Isolée (Sous Poteau)",
+        "cat_cont": "Filante (Sous Mur)",
+        "foot_type": "Position de la Charge",
         "type_centree": "Centrée",
         "type_excentree": "Excentrée (Rive)",
-        "col_dims": "Dimensions du Poteau (m)",
-        "width_a": "Largeur (a) - parallèle à A",
-        "length_b": "Longueur (b) - parallèle à B",
-        "loads_soil": "Charges et Sol",
+        "col_dims": "Dimensions du Porteur (m)",
+        "width_a": "Épaisseur/Largeur (a) - Axe x",
+        "length_b": "Longueur (b) - Axe y",
+        "loads_soil": "Charges et Sol (MN ou MN/ml)",
         "soil_cap": "Contrainte du Sol (MPa)",
         "crack_risk": "Fissuration",
         "fiss_peu": "Peu préjudiciable",
         "fiss_prejudiciable": "Préjudiciable",
         "fiss_tres_prejudiciable": "Très préjudiciable",
         # Footing Results
-        "res_footing": "Résultats : Semelle",
+        "res_footing": "Résultats :",
         "height_h": "Hauteur (h)",
-        "rebar_b": "Ferraillage parallèle à B",
-        "rebar_a": "Ferraillage parallèle à A",
+        "rebar_b": "Armatures Principales (Transversales // à B)",
+        "rebar_a": "Armatures (Longitudinales // à A)",
         "req_area": "Section requise",
         "no_rebar": "Aucune armature viable trouvée.",
-        "strategy_note": "**Stratégie :** Les options sont classées par efficacité de l'acier (moins de pertes matérielles). La colonne 'Crochet (m)' indique la longueur d'ancrage standard requise."
+        "strategy_note": "**Stratégie :** Les options minimisent les pertes matérielles. 'Crochet (m)' indique l'ancrage requis."
     },
     "English": {
         "app_title": "Structural Design Pro",
         "nav_title": "Navigation",
         "select_module": "Select Module:",
         "col_design": "Column Designer",
-        "foot_design": "Isolated Footing Designer",
+        "foot_design": "Footing Designer",
         "lang_selector": "🌍 Language",
-        # Column UI
-        "col_desc": "Automated BAEL formwork sizing, longitudinal, and transverse steel calculation.",
+        # UI Base
         "input_params": "1. Input Parameters",
         "geom_type": "Geometry Type",
+        "loads_dur": "Loads & Duration",
+        "mat_const": "Material Constraints",
+        "concrete_fc28": "Concrete fc28 (MPa)",
+        "steel_fe": "Steel Fe (MPa)",
+        # Column UI
+        "col_desc": "Automated BAEL formwork sizing, longitudinal, and transverse steel calculation.",
         "col_shape": "Column Shape",
         "shape_rect": "Rectangular",
         "shape_circ": "Circular",
         "buckling_len": "Buckling Length Lf (m)",
-        "loads_dur": "Loads & Duration",
         "load_app": "Load Application",
         "charge_autre_cas": "Other (> 90 days)",
         "charge_avant_90j": "Before 90 days",
         "charge_avant_28j": "Before 28 days",
-        "mat_const": "Material Constraints",
-        "concrete_fc28": "Concrete fc28 (MPa)",
-        "steel_fe": "Steel Fe (MPa)",
         "long_rebar": "Planned Longitudinal Rebar",
         "phi_max": "Max Diameter (Φ mm)",
         "phi_min": "Min Diameter (Φ mm)",
-        # Column Results
         "res_formwork": "1. Formwork Dimensions",
         "width": "Width (a)",
         "length": "Length (b)",
@@ -113,58 +116,61 @@ LANGUAGES = {
         "phi_t_label": "Stirrup Diameter (Φt)",
         "spacing": "Standard Spacing (St)",
         "spacing_crit": "Overlap Zone Spacing",
-        "res_factors": "4. Verification Factors",
+        "res_factors": "Verification Factors",
         "design_err": "Design Error:",
         # Footing UI
-        "foot_desc": "Professional BAEL tool for rapid dimensioning and rebar optimization.",
-        "foot_type": "Footing Type",
+        "foot_desc": "Professional BAEL tool for isolated (columns) and continuous (walls) footings.",
+        "foot_cat": "Footing Category",
+        "cat_iso": "Isolated (Column)",
+        "cat_cont": "Continuous (Wall)",
+        "foot_type": "Load Position",
         "type_centree": "Centered",
         "type_excentree": "Eccentric (Edge)",
-        "col_dims": "Column Dimensions (m)",
-        "width_a": "Width (a) - parallel to A",
-        "length_b": "Length (b) - parallel to B",
-        "loads_soil": "Loads & Soil",
+        "col_dims": "Support Dimensions (m)",
+        "width_a": "Thickness/Width (a) - X axis",
+        "length_b": "Length (b) - Y axis",
+        "loads_soil": "Loads & Soil (MN or MN/m)",
         "soil_cap": "Soil Capacity (MPa)",
         "crack_risk": "Cracking Risk",
         "fiss_peu": "Not Harmful (Peu)",
         "fiss_prejudiciable": "Harmful",
         "fiss_tres_prejudiciable": "Highly Harmful",
         # Footing Results
-        "res_footing": "Results: Footing",
+        "res_footing": "Results:",
         "height_h": "Height (h)",
-        "rebar_b": "Reinforcement parallel to B",
-        "rebar_a": "Reinforcement parallel to A",
+        "rebar_b": "Main Rebar (Transverse // to B)",
+        "rebar_a": "Rebar (Longitudinal // to A)",
         "req_area": "Required Area",
         "no_rebar": "No viable rebar found.",
-        "strategy_note": "**Strategy:** Options are ranked by steel efficiency (least waste). The 'Hook (m)' column indicates the standard anchorage length required."
+        "strategy_note": "**Strategy:** Options minimize steel waste. 'Hook (m)' denotes required anchorage."
     },
     "العربية": {
         "app_title": "التصميم الإنشائي الاحترافي",
         "nav_title": "التنقل",
         "select_module": "اختر الوحدة:",
         "col_design": "تصميم الأعمدة",
-        "foot_design": "تصميم القواعد المنفصلة",
+        "foot_design": "تصميم القواعد",
         "lang_selector": "🌍 اللغة",
-        # Column UI
-        "col_desc": "أداة آلية لحساب أبعاد القوالب وحديد التسليح الطولي والعرضي وفقاً لكود BAEL.",
+        # UI Base
         "input_params": "1. معلمات الإدخال",
         "geom_type": "نوع الهندسة",
+        "loads_dur": "الأحمال والمدة",
+        "mat_const": "قيود المواد",
+        "concrete_fc28": "مقاومة الخرسانة fc28 (MPa)",
+        "steel_fe": "إجهاد الخضوع للصلب Fe (MPa)",
+        # Column UI
+        "col_desc": "أداة آلية لحساب أبعاد القوالب وحديد التسليح الطولي والعرضي وفقاً لكود BAEL.",
         "col_shape": "شكل العمود",
         "shape_rect": "مستطيل",
         "shape_circ": "دائري",
         "buckling_len": "طول الانبعاج Lf (م)",
-        "loads_dur": "الأحمال والمدة",
         "load_app": "تطبيق الحمل",
         "charge_autre_cas": "حالات أخرى (> 90 يوم)",
         "charge_avant_90j": "قبل 90 يوم",
         "charge_avant_28j": "قبل 28 يوم",
-        "mat_const": "قيود المواد",
-        "concrete_fc28": "مقاومة الخرسانة fc28 (MPa)",
-        "steel_fe": "إجهاد الخضوع للصلب Fe (MPa)",
         "long_rebar": "التسليح الطولي المخطط",
         "phi_max": "أقصى قطر (Φ مم)",
         "phi_min": "أدنى قطر (Φ مم)",
-        # Column Results
         "res_formwork": "1. أبعاد القالب",
         "width": "العرض (a)",
         "length": "الطول (b)",
@@ -180,38 +186,39 @@ LANGUAGES = {
         "phi_t_label": "قطر الكانات (Φt)",
         "spacing": "التباعد العادي (St)",
         "spacing_crit": "التباعد في منطقة التراكب",
-        "res_factors": "4. عوامل التحقق",
+        "res_factors": "عوامل التحقق",
         "design_err": "خطأ في التصميم:",
         # Footing UI
-        "foot_desc": "أداة احترافية لحساب الأبعاد السريع وتحسين التسليح وفقاً لكود BAEL.",
-        "foot_type": "نوع القاعدة",
+        "foot_desc": "أداة احترافية لحساب القواعد المنفصلة (الأعمدة) والمستمرة (الجدران).",
+        "foot_cat": "فئة القاعدة",
+        "cat_iso": "منفصلة (لعمود)",
+        "cat_cont": "مستمرة (لجدار)",
+        "foot_type": "موضع الحمل",
         "type_centree": "مركزية",
         "type_excentree": "لامركزية (طرفية)",
-        "col_dims": "أبعاد العمود (م)",
-        "width_a": "العرض (a) - موازي لـ A",
-        "length_b": "الطول (b) - موازي لـ B",
-        "loads_soil": "الأحمال والتربة",
+        "col_dims": "أبعاد العنصر الحامل (م)",
+        "width_a": "السماكة/العرض (a) - محور X",
+        "length_b": "الطول (b) - محور Y",
+        "loads_soil": "الأحمال والتربة (MN أو MN/m)",
         "soil_cap": "قدرة تحمل التربة (MPa)",
         "crack_risk": "خطر التشققات",
         "fiss_peu": "غير ضار (Peu)",
         "fiss_prejudiciable": "ضار",
         "fiss_tres_prejudiciable": "ضار جداً",
         # Footing Results
-        "res_footing": "النتائج: قاعدة",
+        "res_footing": "النتائج:",
         "height_h": "الارتفاع (h)",
-        "rebar_b": "التسليح الموازي لـ B",
-        "rebar_a": "التسليح الموازي لـ A",
+        "rebar_b": "التسليح الرئيسي (عرضي // لـ B)",
+        "rebar_a": "التسليح (طولي // لـ A)",
         "req_area": "المساحة المطلوبة",
         "no_rebar": "لم يتم العثور على تسليح مناسب.",
-        "strategy_note": "**الاستراتيجية:** يتم ترتيب الخيارات حسب كفاءة الصلب (أقل هدر). يشير عمود 'الخطاف (م)' إلى طول التثبيت القياسي المطلوب."
+        "strategy_note": "**الاستراتيجية:** تقلل الخيارات من هدر الصلب. يشير 'الخطاف (م)' إلى طول التثبيت المطلوب."
     }
 }
 
 # --- STATE INITIALIZATION & HELPER ---
 if 'lang' not in st.session_state:
     st.session_state.lang = "Français"
-
-# NEW: Initialize the project log
 if 'project_log' not in st.session_state:
     st.session_state.project_log = []
 
@@ -219,7 +226,6 @@ def t(key):
     return LANGUAGES[st.session_state.lang].get(key, f"Missing translation: {key}")
 
 def translate_df_columns(df):
-    """Utility to translate DataFrame headers dynamically"""
     if st.session_state.lang == "العربية":
         return df.rename(columns={"Selection": "الاختيار", "Area (cm²)": "المساحة (سم²)", "Spacing (cm)": "التباعد (سم)", "Excess": "الفائض", "Hook (m)": "الخطاف (م)"})
     elif st.session_state.lang == "Français":
@@ -230,8 +236,8 @@ def translate_df_columns(df):
 class ColumnsSystem:
     def __init__(self):
         self.standard_diameters = [12, 14, 16, 20]
-        self.min_spacing = 0.05 # 5 cm minimum spacing
-        self.max_spacing = 0.40 # 40 cm maximum spacing
+        self.min_spacing = 0.05
+        self.max_spacing = 0.40
         
     def pre_design(self, Nu, Lf, Yb=1.5, landa=35, alpha=0.708, fc28=25, st_type="rect"):
         Br = ((0.9 * Yb) / alpha) * (Nu / fc28)
@@ -264,7 +270,6 @@ class ColumnsSystem:
                             "Spacing (cm)": round(spacing * 100, 1),
                             "Excess": round(area - required_area_cm2, 2)
                         })
-
         viable.sort(key=lambda x: x["Excess"])
         return viable[:5]
 
@@ -306,25 +311,13 @@ class ColumnsSystem:
         }
 
     def design_transverse(self, phi_l_max, phi_l_min, a_m):
-        """
-        Calcule le diamètre et l'espacement des cadres selon le BAEL.
-        a_m : plus petite dimension du poteau en mètres.
-        """
         phi_t = math.ceil((phi_l_max / 3))
-        # On normalise aux diamètres standards
         if phi_t <= 6: phi_t = 6
         elif phi_t <= 8: phi_t = 8
         else: phi_t = 10
-        
-        # Espacement st <= min(15*phi_l_min, 40cm, a+10cm)
         st_max_m = min(15 * (phi_l_min / 1000), 0.40, a_m + 0.10)
-        st_final = math.floor(st_max_m * 100) # en cm
-        
-        return {
-            "phi_t": phi_t,
-            "st": st_final,
-            "st_recouv": math.floor(st_final / 1.5) # Règle forfaitaire zone critique
-        }
+        st_final = math.floor(st_max_m * 100)
+        return {"phi_t": phi_t, "st": st_final, "st_recouv": math.floor(st_final / 1.5)}
 
 class IsolatedFootingSystem:
     def __init__(self):
@@ -350,7 +343,6 @@ class IsolatedFootingSystem:
                             "Hook (m)": round(hook_e_m, 2),
                             "Excess": round(actual_area - required_area_cm2, 2)
                         })
-        
         viable_options.sort(key=lambda x: x["Excess"])
         return viable_options[:5]
 
@@ -383,7 +375,7 @@ class IsolatedFootingSystem:
         Aa_req *= mult
 
         return {
-            "Type": footing_type,
+            "Type": f"Isolée ({footing_type})",
             "Geometry": {"A": A, "B": B, "h": h, "d": d},
             "Ab_req": round(Ab_req, 2),
             "Aa_req": round(Aa_req, 2),
@@ -391,42 +383,41 @@ class IsolatedFootingSystem:
             "options_A": self.generate_options(Aa_req, A)
         }
 
-class ContinuedFootingSystem:
-    def __init__(self):
-        self.standard_diameters = [8, 10, 12, 14, 16, 20]
+class ContinuedFootingSystem(IsolatedFootingSystem):
+    def design_centered(self, a, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu"):
+        B = math.ceil((Nser / Gama_sol) * 20) / 20
+        return self._compute_reinforcement(a, 1.0, B, Nu, Fe, Ys, fissuration, "centree")
 
-    def design_centered(self, a, b, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu"):
-        B = math.ceil(((Nser/(Gama_sol))) * 20) / 20
-        return self._compute_reinforcement(a, b, B, Nu, Fe, Ys, fissuration, "centree")
+    def design_eccentric(self, a, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu"):
+        B = math.ceil((Nser / Gama_sol) * 20) / 20
+        return self._compute_reinforcement(a, 1.0, B, Nu, Fe, Ys, fissuration, "excentree")
 
-    def _compute_reinforcement(self, a, b, A, B, Nu, Fe, Ys, fissuration, footing_type):
-        overhang_A = (A - a) if footing_type == "excentree" else (A - a) / 2
-        overhang_B = (B - b) / 2
+    def _compute_reinforcement(self, a, A, B, Nu, Fe, Ys, fissuration, footing_type):
+        overhang_B = (B - a) if footing_type == "excentree" else (B - a) / 2
 
-        h = max(math.ceil((((B-a)/4)+0.05) * 20) / 20, 0.20)
-        d= 0.9 * h
+        h = max(math.ceil((overhang_B / 2 + 0.05) * 20) / 20, 0.20)
+        d = h - 0.05
         Gama_su = Fe / Ys
         
-        As_req = ((Nu*(B-a))/ 8 * d * Gama_su) * 10000
-        Ar_req = max((As_req/4)*1.4, 2) * 10000
+        As_req = ((Nu * overhang_B) / (4 * d * Gama_su)) * 10000
+        Ar_req = max(As_req / 4, 2.0)
 
         mult = {"peu": 1.0, "prejudiciable": 1.10, "tres_prejudiciable": 1.50}.get(fissuration, 1.0)
         As_req *= mult
         Ar_req *= mult
 
         return {
-            "Type": footing_type,
+            "Type": f"Filante ({footing_type})",
             "Geometry": {"A": A, "B": B, "h": h, "d": d},
-            "Ab_req": round(As_req, 2),
-            "Aa_req": round(Ar_req, 2),
-            "options_B": self.generate_options(As_req, B), # Assuming generate_options is available or inherited if integrated
-            "options_A": self.generate_options(Ar_req, A)
+            "Ab_req": round(As_req, 2), 
+            "Aa_req": round(Ar_req, 2), 
+            "options_B": self.generate_options(As_req, 1.0), 
+            "options_A": self.generate_options(Ar_req, B)    
         }
 
 # --- STREAMLIT UI ---
 st.set_page_config(page_title=t("app_title"), layout="wide")
 
-# RTL CSS Injection for Arabic
 if st.session_state.lang == "العربية":
     st.markdown("""
         <style>
@@ -435,10 +426,8 @@ if st.session_state.lang == "العربية":
         </style>
     """, unsafe_allow_html=True)
 
-# Sidebar Navigation
 st.sidebar.selectbox(t("lang_selector"), options=["Français", "English", "العربية"], key="lang")
 st.sidebar.divider()
-
 st.sidebar.title(t("nav_title"))
 app_mode = st.sidebar.radio(t("select_module"), [t("col_design"), t("foot_design")])
 st.sidebar.divider()
@@ -449,8 +438,6 @@ if app_mode == t("col_design"):
 
     with st.sidebar:
         st.header(t("input_params"))
-        
-        # NEW: Element ID Input
         element_id = st.text_input("Repère (ex: P(A:1))", value="P(A:1)")
         
         with st.expander(t("geom_type"), expanded=True):
@@ -472,13 +459,10 @@ if app_mode == t("col_design"):
             phi_l_max = st.selectbox(t("phi_max"), [12, 14, 16, 20, 25], index=1)
             phi_l_min = st.selectbox(t("phi_min"), [12, 14, 16, 20, 25], index=0)
 
-    # Calculation
     col_engine = ColumnsSystem()
     try:
         geom = col_engine.pre_design(Nu=nu_col, Lf=lf_val, Yb=yb_val, fc28=fc28_val, st_type=st_type)
         steel = col_engine.design(Nu=nu_col, Lf=lf_val, geometry=geom, Yb=yb_val, Ys=ys_col, fe=fe_col, fc28=fc28_val, charge=charge_engine)
-        
-        # Calculate transverse steel
         a_m = min(geom['a'], geom['b']) if st_type == 'rect' else geom['D']
         trans_steel = col_engine.design_transverse(phi_l_max, phi_l_min, a_m)
 
@@ -489,7 +473,6 @@ if app_mode == t("col_design"):
             c2.metric(t("length"), f"{geom['b']:.2f} m")
         else:
             c1.metric(t("diameter"), f"{geom['D']:.2f} m")
-            
         c3.metric(t("theo_br"), f"{geom['Br_pre']:.4f} m²")
         st.divider()
 
@@ -502,8 +485,7 @@ if app_mode == t("col_design"):
         st.caption(t("rebar_options"))
         if steel['options']:
             df_col = pd.DataFrame(steel['options'])
-            df_col = translate_df_columns(df_col)
-            st.dataframe(df_col, use_container_width=True, hide_index=True)
+            st.dataframe(translate_df_columns(df_col), use_container_width=True, hide_index=True)
         else:
             st.warning(t("no_rebar"))
         st.divider()
@@ -515,28 +497,21 @@ if app_mode == t("col_design"):
         tc3.metric(t("spacing_crit"), f"{trans_steel['st_recouv']} cm")
         st.divider()
         
-        st.subheader(t("res_factors"))
-        st.json(steel['factors'])
+        with st.expander(t("res_factors")):
+            st.json(steel['factors'])
 
-        # NEW: Save Data Action
-        st.divider()
         if st.button("💾 Enregistrer dans le projet / Save to Project", key="save_col"):
-            
-            # 1. Format the dimension string based on the shape
-            if st_type == "rect":
-                dim_str = f"{geom['a']:.2f} x {geom['b']:.2f}"
-            else:
-                dim_str = f"∅ {geom['D']:.2f}"
-
-            # 2. Add 'Dimensions (m)' to the dictionary
+            dim_str = f"{geom['a']:.2f} x {geom['b']:.2f}" if st_type == "rect" else f"∅ {geom['D']:.2f}"
             log_entry = {
                 "Repère": element_id,
                 "Type": "Poteau",
                 "Nu (MN)": nu_col,
-                "Dimensions (m)": dim_str, 
                 "Section Adop. (cm²)": steel['sections_cm2']['As_final'],
                 "Cadres (Φt)": trans_steel['phi_t'],
-                "Espacement (cm)": trans_steel['st']
+                "Espacement (cm)": trans_steel['st'],
+                "Dimensions (m)": dim_str,
+                "Armatures A (cm²)": None,
+                "Armatures B (cm²)": None
             }
             st.session_state.project_log.append(log_entry)
             st.success(f"Élément {element_id} ajouté au journal.")
@@ -550,19 +525,20 @@ elif app_mode == t("foot_design"):
 
     with st.sidebar:
         st.header(t("input_params"))
-        
-        # NEW: Element ID Input
         element_id = st.text_input("Repère (ex: S(A:1))", value="S(A:1)")
         
+        cat_semelle = st.radio(t("foot_cat"), ["iso", "cont"], format_func=lambda x: t(f"cat_{x}"))
         type_semelle = st.radio(t("foot_type"), ["centree", "excentree"], format_func=lambda x: t(f"type_{x}"))
         
         with st.expander(t("col_dims"), expanded=True):
-            col_a = st.number_input(t("width_a"), value=0.30, step=0.05)
-            col_b = st.number_input(t("length_b"), value=0.40, step=0.05)
+            col_a = st.number_input(t("width_a"), value=0.20, step=0.05)
+            # Hide length 'b' for continuous walls (implicitly infinite/1m)
+            if cat_semelle == "iso":
+                col_b = st.number_input(t("length_b"), value=0.40, step=0.05)
         
         with st.expander(t("loads_soil"), expanded=True):
-            nu = st.number_input("Nu (MN)", value=0.462, format="%.3f")
-            nser = st.number_input("Nser (MN)", value=0.334, format="%.3f")
+            nu = st.number_input("Nu", value=0.462, format="%.3f")
+            nser = st.number_input("Nser", value=0.334, format="%.3f")
             sigma_sol = st.number_input(t("soil_cap"), value=0.25, step=0.05)
         
         with st.expander(t("mat_const"), expanded=False):
@@ -570,16 +546,23 @@ elif app_mode == t("foot_design"):
             ys = st.number_input("Gamma_s", value=1.15)
             fiss = st.selectbox(t("crack_risk"), ["peu", "prejudiciable", "tres_prejudiciable"], format_func=lambda x: t(f"fiss_{x}"))
 
-    # Calculation
-    engine = IsolatedFootingSystem()
-    if type_semelle == "centree":
-        res = engine.design_centered(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
+    if cat_semelle == "iso":
+        engine = IsolatedFootingSystem()
+        if type_semelle == "centree":
+            res = engine.design_centered(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
+        else:
+            res = engine.design_eccentric(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
     else:
-        res = engine.design_eccentric(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
+        engine = ContinuedFootingSystem()
+        if type_semelle == "centree":
+            res = engine.design_centered(col_a, nu, nser, fe, ys, sigma_sol, fiss)
+        else:
+            res = engine.design_eccentric(col_a, nu, nser, fe, ys, sigma_sol, fiss)
 
-    st.subheader(f"{t('res_footing')} {t(f'type_{res['Type']}')}")
+    st.subheader(f"{t('res_footing')} {res['Type']}")
     c1, c2, c3 = st.columns(3)
-    c1.metric(t("width").replace("(a)", "(A)"), f"{res['Geometry']['A']:.2f} m")
+    dim_a_label = t("width").replace("(a)", "(A = 1.0ml)") if cat_semelle == "cont" else t("width").replace("(a)", "(A)")
+    c1.metric(dim_a_label, f"{res['Geometry']['A']:.2f} m")
     c2.metric(t("length").replace("(b)", "(B)"), f"{res['Geometry']['B']:.2f} m")
     c3.metric(t("height_h"), f"{res['Geometry']['h']:.2f} m")
     st.divider()
@@ -588,33 +571,33 @@ elif app_mode == t("foot_design"):
 
     with col_left:
         st.subheader(f"{t('rebar_b')} ({res['Geometry']['B']:.2f}m)")
-        st.caption(f"{t('req_area')} : {res['Ab_req']:.2f} cm²")
+        st.caption(f"{t('req_area')} : {res['Ab_req']:.2f} cm²" + ("/ml" if cat_semelle=="cont" else ""))
         if res['options_B']:
             df_b = pd.DataFrame(res['options_B'])
-            df_b = translate_df_columns(df_b)
-            st.dataframe(df_b.drop(columns=[df_b.columns[-1]]), use_container_width=True, hide_index=True) # Drops Excess dynamically
+            st.dataframe(translate_df_columns(df_b).drop(columns=[df_b.columns[-1]]), use_container_width=True, hide_index=True)
         else:
             st.error(t("no_rebar"))
 
     with col_right:
         st.subheader(f"{t('rebar_a')} ({res['Geometry']['A']:.2f}m)")
-        st.caption(f"{t('req_area')} : {res['Aa_req']:.2f} cm²")
+        st.caption(f"{t('req_area')} : {res['Aa_req']:.2f} cm²" + (" (Répartition)" if cat_semelle=="cont" else ""))
         if res['options_A']:
             df_a = pd.DataFrame(res['options_A'])
-            df_a = translate_df_columns(df_a)
-            st.dataframe(df_a.drop(columns=[df_a.columns[-1]]), use_container_width=True, hide_index=True) # Drops Excess dynamically
+            st.dataframe(translate_df_columns(df_a).drop(columns=[df_a.columns[-1]]), use_container_width=True, hide_index=True)
         else:
             st.error(t("no_rebar"))
 
     st.info(t("strategy_note"))
 
-    # NEW: Save Data Action
     st.divider()
     if st.button("💾 Enregistrer dans le projet / Save to Project", key="save_foot"):
         log_entry = {
             "Repère": element_id,
-            "Type": f"Semelle ({type_semelle})",
+            "Type": res['Type'],
             "Nu (MN)": nu,
+            "Section Adop. (cm²)": None,
+            "Cadres (Φt)": None,
+            "Espacement (cm)": None,
             "Dimensions (m)": f"{res['Geometry']['A']:.2f} x {res['Geometry']['B']:.2f}",
             "Armatures A (cm²)": res['Aa_req'],
             "Armatures B (cm²)": res['Ab_req']
@@ -627,20 +610,10 @@ st.divider()
 st.header("📁 Journal du Projet / Project Log")
 
 if st.session_state.project_log:
-    # Convert list of dicts to a DataFrame
     log_df = pd.DataFrame(st.session_state.project_log)
     st.dataframe(log_df, use_container_width=True)
-    
-    # Generate CSV for automation/external use
     csv = log_df.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="📥 Exporter vers CSV / Export to CSV",
-        data=csv,
-        file_name='bael_project_log.csv',
-        mime='text/csv',
-    )
-    
-    # Clear memory option
+    st.download_button(label="📥 Exporter vers CSV / Export to CSV", data=csv, file_name='bael_project_log.csv', mime='text/csv')
     if st.button("🗑️ Vider le journal / Clear Log"):
         st.session_state.project_log = []
         st.rerun()
