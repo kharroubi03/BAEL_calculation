@@ -41,6 +41,7 @@ LANGUAGES = {
         "min_sec": "Section Minimale",
         "final_sec": "Section Finale Adoptée",
         "exec_val": "Valeur d'exécution",
+        "rebar_options": "Options de Ferraillage (Longitudinal)",
         "res_transverse": "3. Ferraillage Transversal",
         "phi_t_label": "Diamètre des Cadres (Φt)",
         "spacing": "Espacement courant (St)",
@@ -107,6 +108,7 @@ LANGUAGES = {
         "min_sec": "Minimum Area",
         "final_sec": "Final Adopted Area",
         "exec_val": "Execution Value",
+        "rebar_options": "Reinforcement Options (Longitudinal)",
         "res_transverse": "3. Transverse Reinforcement",
         "phi_t_label": "Stirrup Diameter (Φt)",
         "spacing": "Standard Spacing (St)",
@@ -173,6 +175,7 @@ LANGUAGES = {
         "min_sec": "المساحة الدنيا",
         "final_sec": "المساحة النهائية المعتمدة",
         "exec_val": "قيمة التنفيذ",
+        "rebar_options": "خيارات التسليح (الطولي)",
         "res_transverse": "3. التسليح العرضي",
         "phi_t_label": "قطر الكانات (Φt)",
         "spacing": "التباعد العادي (St)",
@@ -208,11 +211,28 @@ LANGUAGES = {
 if 'lang' not in st.session_state:
     st.session_state.lang = "Français"
 
+# NEW: Initialize the project log
+if 'project_log' not in st.session_state:
+    st.session_state.project_log = []
+
 def t(key):
     return LANGUAGES[st.session_state.lang].get(key, f"Missing translation: {key}")
 
+def translate_df_columns(df):
+    """Utility to translate DataFrame headers dynamically"""
+    if st.session_state.lang == "العربية":
+        return df.rename(columns={"Selection": "الاختيار", "Area (cm²)": "المساحة (سم²)", "Spacing (cm)": "التباعد (سم)", "Excess": "الفائض", "Hook (m)": "الخطاف (م)"})
+    elif st.session_state.lang == "Français":
+        return df.rename(columns={"Selection": "Sélection", "Area (cm²)": "Section (cm²)", "Spacing (cm)": "Espacement (cm)", "Excess": "Excès", "Hook (m)": "Crochet (m)"})
+    return df
+
 # --- LOGIC ENGINES ---
 class ColumnsSystem:
+    def __init__(self):
+        self.standard_diameters = [12, 14, 16, 20]
+        self.min_spacing = 0.05 # 5 cm minimum spacing
+        self.max_spacing = 0.40 # 40 cm maximum spacing
+        
     def pre_design(self, Nu, Lf, Yb=1.5, landa=35, alpha=0.708, fc28=25, st_type="rect"):
         Br = ((0.9 * Yb) / alpha) * (Nu / fc28)
         if st_type == "rect":
@@ -225,6 +245,28 @@ class ColumnsSystem:
             D2 = ((4 * Lf) / landa)
             D = math.ceil(max(D1, D2) * 20) / 20
             return {"type": "circ", "a": None, "b": None, "D": D, "Br_pre": round(Br, 4)}
+
+    def generate_column_options(self, required_area_cm2, perimeter_m, is_circular=False):
+        possible_counts = [4, 6, 8, 10, 12, 14, 16, 20]
+        if is_circular:
+            possible_counts = [c for c in possible_counts if c >= 6]
+
+        viable = []
+        for count in possible_counts:
+            for phi in self.standard_diameters:
+                area = count * ((math.pi * (phi / 10)**2) / 4)
+                if area >= required_area_cm2:
+                    spacing = perimeter_m / count
+                    if self.min_spacing <= spacing <= self.max_spacing:
+                        viable.append({
+                            "Selection": f"{count} HA {phi}",
+                            "Area (cm²)": round(area, 2),
+                            "Spacing (cm)": round(spacing * 100, 1),
+                            "Excess": round(area - required_area_cm2, 2)
+                        })
+
+        viable.sort(key=lambda x: x["Excess"])
+        return viable[:5]
 
     def design(self, Nu, Lf, geometry, Yb=1.5, Ys=1.15, fe=500, fc28=25, charge="autre cas"):
         st_type = geometry["type"]
@@ -255,9 +297,12 @@ class ColumnsSystem:
         Amin = max(4 * perimeter_u, (0.2 / 100) * B_area * 10000)
         As_final = max(As_calc, Amin)
 
+        options = self.generate_column_options(As_final, perimeter_u, is_circular=(st_type == "circ"))
+
         return {
             "factors": {"Landa": round(landa, 3), "Alpha": round(alpha, 3), "Br_reel_m2": round(Br, 4)},
-            "sections_cm2": {"As_theoretical": round(As_calc, 2), "As_min": round(Amin, 2), "As_final": round(As_final, 2)}
+            "sections_cm2": {"As_theoretical": round(As_calc, 2), "As_min": round(Amin, 2), "As_final": round(As_final, 2)},
+            "options": options
         }
 
     def design_transverse(self, phi_l_max, phi_l_min, a_m):
@@ -272,17 +317,16 @@ class ColumnsSystem:
         else: phi_t = 10
         
         # Espacement st <= min(15*phi_l_min, 40cm, a+10cm)
-        # Note: phi_l_min divided by 1000 to convert mm to meters.
         st_max_m = min(15 * (phi_l_min / 1000), 0.40, a_m + 0.10)
         st_final = math.floor(st_max_m * 100) # en cm
         
         return {
             "phi_t": phi_t,
             "st": st_final,
-            "st_recouv": 7 # Règle forfaitaire zone critique
+            "st_recouv": math.floor(st_final / 1.5) # Règle forfaitaire zone critique
         }
 
-class FootingSystem:
+class IsolatedFootingSystem:
     def __init__(self):
         self.standard_diameters = [8, 10, 12, 14, 16, 20]
 
@@ -308,7 +352,7 @@ class FootingSystem:
                         })
         
         viable_options.sort(key=lambda x: x["Excess"])
-        return viable_options[:3]
+        return viable_options[:5]
 
     def design_centered(self, a, b, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu"):
         B = math.ceil(math.sqrt((b/a) * (Nser/Gama_sol)) * 20) / 20
@@ -347,6 +391,38 @@ class FootingSystem:
             "options_A": self.generate_options(Aa_req, A)
         }
 
+class ContinuedFootingSystem:
+    def __init__(self):
+        self.standard_diameters = [8, 10, 12, 14, 16, 20]
+
+    def design_centered(self, a, b, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu"):
+        B = math.ceil(((Nser/(Gama_sol))) * 20) / 20
+        return self._compute_reinforcement(a, b, B, Nu, Fe, Ys, fissuration, "centree")
+
+    def _compute_reinforcement(self, a, b, A, B, Nu, Fe, Ys, fissuration, footing_type):
+        overhang_A = (A - a) if footing_type == "excentree" else (A - a) / 2
+        overhang_B = (B - b) / 2
+
+        h = max(math.ceil((((B-a)/4)+0.05) * 20) / 20, 0.20)
+        d= 0.9 * h
+        Gama_su = Fe / Ys
+        
+        As_req = ((Nu*(B-a))/ 8 * d * Gama_su) * 10000
+        Ar_req = max((As_req/4)*1.4, 2) * 10000
+
+        mult = {"peu": 1.0, "prejudiciable": 1.10, "tres_prejudiciable": 1.50}.get(fissuration, 1.0)
+        As_req *= mult
+        Ar_req *= mult
+
+        return {
+            "Type": footing_type,
+            "Geometry": {"A": A, "B": B, "h": h, "d": d},
+            "Ab_req": round(As_req, 2),
+            "Aa_req": round(Ar_req, 2),
+            "options_B": self.generate_options(As_req, B), # Assuming generate_options is available or inherited if integrated
+            "options_A": self.generate_options(Ar_req, A)
+        }
+
 # --- STREAMLIT UI ---
 st.set_page_config(page_title=t("app_title"), layout="wide")
 
@@ -373,6 +449,9 @@ if app_mode == t("col_design"):
 
     with st.sidebar:
         st.header(t("input_params"))
+        
+        # NEW: Element ID Input
+        element_id = st.text_input("Repère (ex: P(A:1))", value="P(A:1)")
         
         with st.expander(t("geom_type"), expanded=True):
             st_type = st.selectbox(t("col_shape"), ["rect", "circ"], format_func=lambda x: t(f"shape_{x}"))
@@ -419,6 +498,14 @@ if app_mode == t("col_design"):
         sc1.metric(t("theo_sec"), f"{steel['sections_cm2']['As_theoretical']} cm²")
         sc2.metric(t("min_sec"), f"{steel['sections_cm2']['As_min']} cm²")
         sc3.metric(t("final_sec"), f"{steel['sections_cm2']['As_final']} cm²", delta=t("exec_val"), delta_color="off")
+        
+        st.caption(t("rebar_options"))
+        if steel['options']:
+            df_col = pd.DataFrame(steel['options'])
+            df_col = translate_df_columns(df_col)
+            st.dataframe(df_col, use_container_width=True, hide_index=True)
+        else:
+            st.warning(t("no_rebar"))
         st.divider()
         
         st.subheader(t("res_transverse"))
@@ -431,6 +518,29 @@ if app_mode == t("col_design"):
         st.subheader(t("res_factors"))
         st.json(steel['factors'])
 
+        # NEW: Save Data Action
+        st.divider()
+        if st.button("💾 Enregistrer dans le projet / Save to Project", key="save_col"):
+            
+            # 1. Format the dimension string based on the shape
+            if st_type == "rect":
+                dim_str = f"{geom['a']:.2f} x {geom['b']:.2f}"
+            else:
+                dim_str = f"∅ {geom['D']:.2f}"
+
+            # 2. Add 'Dimensions (m)' to the dictionary
+            log_entry = {
+                "Repère": element_id,
+                "Type": "Poteau",
+                "Nu (MN)": nu_col,
+                "Dimensions (m)": dim_str, 
+                "Section Adop. (cm²)": steel['sections_cm2']['As_final'],
+                "Cadres (Φt)": trans_steel['phi_t'],
+                "Espacement (cm)": trans_steel['st']
+            }
+            st.session_state.project_log.append(log_entry)
+            st.success(f"Élément {element_id} ajouté au journal.")
+
     except ValueError as e:
         st.error(f"{t('design_err')} {e}")
 
@@ -440,6 +550,9 @@ elif app_mode == t("foot_design"):
 
     with st.sidebar:
         st.header(t("input_params"))
+        
+        # NEW: Element ID Input
+        element_id = st.text_input("Repère (ex: S(A:1))", value="S(A:1)")
         
         type_semelle = st.radio(t("foot_type"), ["centree", "excentree"], format_func=lambda x: t(f"type_{x}"))
         
@@ -458,7 +571,7 @@ elif app_mode == t("foot_design"):
             fiss = st.selectbox(t("crack_risk"), ["peu", "prejudiciable", "tres_prejudiciable"], format_func=lambda x: t(f"fiss_{x}"))
 
     # Calculation
-    engine = FootingSystem()
+    engine = IsolatedFootingSystem()
     if type_semelle == "centree":
         res = engine.design_centered(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
     else:
@@ -478,7 +591,8 @@ elif app_mode == t("foot_design"):
         st.caption(f"{t('req_area')} : {res['Ab_req']:.2f} cm²")
         if res['options_B']:
             df_b = pd.DataFrame(res['options_B'])
-            st.dataframe(df_b.drop(columns=['Excess']), use_container_width=True, hide_index=True)
+            df_b = translate_df_columns(df_b)
+            st.dataframe(df_b.drop(columns=[df_b.columns[-1]]), use_container_width=True, hide_index=True) # Drops Excess dynamically
         else:
             st.error(t("no_rebar"))
 
@@ -487,8 +601,48 @@ elif app_mode == t("foot_design"):
         st.caption(f"{t('req_area')} : {res['Aa_req']:.2f} cm²")
         if res['options_A']:
             df_a = pd.DataFrame(res['options_A'])
-            st.dataframe(df_a.drop(columns=['Excess']), use_container_width=True, hide_index=True)
+            df_a = translate_df_columns(df_a)
+            st.dataframe(df_a.drop(columns=[df_a.columns[-1]]), use_container_width=True, hide_index=True) # Drops Excess dynamically
         else:
             st.error(t("no_rebar"))
 
     st.info(t("strategy_note"))
+
+    # NEW: Save Data Action
+    st.divider()
+    if st.button("💾 Enregistrer dans le projet / Save to Project", key="save_foot"):
+        log_entry = {
+            "Repère": element_id,
+            "Type": f"Semelle ({type_semelle})",
+            "Nu (MN)": nu,
+            "Dimensions (m)": f"{res['Geometry']['A']:.2f} x {res['Geometry']['B']:.2f}",
+            "Armatures A (cm²)": res['Aa_req'],
+            "Armatures B (cm²)": res['Ab_req']
+        }
+        st.session_state.project_log.append(log_entry)
+        st.success(f"Élément {element_id} ajouté au journal.")
+
+# --- PROJECT LOG & EXPORT SYSTEM ---
+st.divider()
+st.header("📁 Journal du Projet / Project Log")
+
+if st.session_state.project_log:
+    # Convert list of dicts to a DataFrame
+    log_df = pd.DataFrame(st.session_state.project_log)
+    st.dataframe(log_df, use_container_width=True)
+    
+    # Generate CSV for automation/external use
+    csv = log_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Exporter vers CSV / Export to CSV",
+        data=csv,
+        file_name='bael_project_log.csv',
+        mime='text/csv',
+    )
+    
+    # Clear memory option
+    if st.button("🗑️ Vider le journal / Clear Log"):
+        st.session_state.project_log = []
+        st.rerun()
+else:
+    st.caption("Aucun élément enregistré. / No elements saved yet.")
