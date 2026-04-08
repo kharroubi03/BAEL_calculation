@@ -485,6 +485,7 @@ if app_mode == t("col_design"):
         st.caption(t("rebar_options"))
         if steel['options']:
             df_col = pd.DataFrame(steel['options'])
+            df_col = df_col.drop(columns=["Excess"]) # Drop it BEFORE translating
             st.dataframe(translate_df_columns(df_col), use_container_width=True, hide_index=True)
         else:
             st.warning(t("no_rebar"))
@@ -574,7 +575,8 @@ elif app_mode == t("foot_design"):
         st.caption(f"{t('req_area')} : {res['Ab_req']:.2f} cm²" + ("/ml" if cat_semelle=="cont" else ""))
         if res['options_B']:
             df_b = pd.DataFrame(res['options_B'])
-            st.dataframe(translate_df_columns(df_b).drop(columns=[df_b.columns[-1]]), use_container_width=True, hide_index=True)
+            df_b = df_b.drop(columns=["Excess"]) # Drop it BEFORE translating
+            st.dataframe(translate_df_columns(df_b), use_container_width=True, hide_index=True)
         else:
             st.error(t("no_rebar"))
 
@@ -583,7 +585,8 @@ elif app_mode == t("foot_design"):
         st.caption(f"{t('req_area')} : {res['Aa_req']:.2f} cm²" + (" (Répartition)" if cat_semelle=="cont" else ""))
         if res['options_A']:
             df_a = pd.DataFrame(res['options_A'])
-            st.dataframe(translate_df_columns(df_a).drop(columns=[df_a.columns[-1]]), use_container_width=True, hide_index=True)
+            df_a = df_a.drop(columns=["Excess"]) # Drop it BEFORE translating
+            st.dataframe(translate_df_columns(df_a), use_container_width=True, hide_index=True)
         else:
             st.error(t("no_rebar"))
 
