@@ -323,6 +323,15 @@ class IsolatedFootingSystem:
     def __init__(self):
         self.standard_diameters = [8, 10, 12, 14, 16, 20]
 
+    def design_custom(self, a, b, A, B, Nu, Nser, Fe, Ys, Gama_sol, fissuration="peu", footing_type="centree"):
+        # 1. Verify Soil Capacity
+        actual_sigma = Nser / (A * B)
+        if actual_sigma > Gama_sol:
+            raise ValueError(f"Contrainte du sol dépassée! Actuelle: {actual_sigma:.3f} MPa > Limite: {Gama_sol} MPa")
+            
+        # 2. Proceed to steel and height calculation
+        return self._compute_reinforcement(a, b, A, B, Nu, Fe, Ys, fissuration, footing_type)
+
     def generate_options(self, required_area_cm2, dimension_m):
         max_spacing_m = 0.20
         baseline_count = math.ceil(dimension_m / max_spacing_m) + 1
@@ -524,6 +533,7 @@ elif app_mode == t("foot_design"):
     st.title(f"🏗️ {t('foot_design')}")
     st.markdown(t("foot_desc"))
 
+    # 1. UI INPUTS (Gather all data first)
     with st.sidebar:
         st.header(t("input_params"))
         element_id = st.text_input("Repère (ex: S(A:1))", value="S(A:1)")
@@ -531,11 +541,24 @@ elif app_mode == t("foot_design"):
         cat_semelle = st.radio(t("foot_cat"), ["iso", "cont"], format_func=lambda x: t(f"cat_{x}"))
         type_semelle = st.radio(t("foot_type"), ["centree", "excentree"], format_func=lambda x: t(f"type_{x}"))
         
+        st.divider()
+        if cat_semelle == "iso":
+            st.subheader("Mode de Dimensionnement")
+            calc_mode = st.radio("Méthode :", ["Auto (Homothétique)", "Manuel (Imposé)"])
+            
+            if calc_mode == "Manuel (Imposé)":
+                with st.expander("Dimensions Imposées (m)", expanded=True):
+                    custom_A = st.number_input("Largeur Semelle (A)", value=1.50, step=0.05)
+                    custom_B = st.number_input("Longueur Semelle (B)", value=1.50, step=0.05)
+        else:
+            calc_mode = "Auto (Homothétique)" # Lock continuous to auto
+
         with st.expander(t("col_dims"), expanded=True):
             col_a = st.number_input(t("width_a"), value=0.20, step=0.05)
-            # Hide length 'b' for continuous walls (implicitly infinite/1m)
             if cat_semelle == "iso":
                 col_b = st.number_input(t("length_b"), value=0.40, step=0.05)
+            else:
+                col_b = 1.0 # Implicit for continuous
         
         with st.expander(t("loads_soil"), expanded=True):
             nu = st.number_input("Nu", value=0.462, format="%.3f")
@@ -547,66 +570,79 @@ elif app_mode == t("foot_design"):
             ys = st.number_input("Gamma_s", value=1.15)
             fiss = st.selectbox(t("crack_risk"), ["peu", "prejudiciable", "tres_prejudiciable"], format_func=lambda x: t(f"fiss_{x}"))
 
-    if cat_semelle == "iso":
-        engine = IsolatedFootingSystem()
-        if type_semelle == "centree":
-            res = engine.design_centered(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
+    # 2. CALCULATION ENGINE
+    engine = IsolatedFootingSystem() if cat_semelle == "iso" else ContinuedFootingSystem()
+        
+    try:
+        if cat_semelle == "iso":
+            if calc_mode == "Auto (Homothétique)":
+                if type_semelle == "centree":
+                    res = engine.design_centered(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
+                else:
+                    res = engine.design_eccentric(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
+            else:
+                # Custom dimensions logic
+                res = engine.design_custom(col_a, col_b, custom_A, custom_B, nu, nser, fe, ys, sigma_sol, fiss, type_semelle)
         else:
-            res = engine.design_eccentric(col_a, col_b, nu, nser, fe, ys, sigma_sol, fiss)
-    else:
-        engine = ContinuedFootingSystem()
-        if type_semelle == "centree":
-            res = engine.design_centered(col_a, nu, nser, fe, ys, sigma_sol, fiss)
-        else:
-            res = engine.design_eccentric(col_a, nu, nser, fe, ys, sigma_sol, fiss)
+            # Continuous footing logic
+            if type_semelle == "centree":
+                res = engine.design_centered(col_a, nu, nser, fe, ys, sigma_sol, fiss)
+            else:
+                res = engine.design_eccentric(col_a, nu, nser, fe, ys, sigma_sol, fiss)
 
-    st.subheader(f"{t('res_footing')} {res['Type']}")
-    c1, c2, c3 = st.columns(3)
-    dim_a_label = t("width").replace("(a)", "(A = 1.0ml)") if cat_semelle == "cont" else t("width").replace("(a)", "(A)")
-    c1.metric(dim_a_label, f"{res['Geometry']['A']:.2f} m")
-    c2.metric(t("length").replace("(b)", "(B)"), f"{res['Geometry']['B']:.2f} m")
-    c3.metric(t("height_h"), f"{res['Geometry']['h']:.2f} m")
-    st.divider()
+        # 3. OUTPUT RENDERING
+        st.subheader(f"{t('res_footing')} {res['Type']}")
+        c1, c2, c3 = st.columns(3)
+        dim_a_label = t("width").replace("(a)", "(A = 1.0ml)") if cat_semelle == "cont" else t("width").replace("(a)", "(A)")
+        c1.metric(dim_a_label, f"{res['Geometry']['A']:.2f} m")
+        c2.metric(t("length").replace("(b)", "(B)"), f"{res['Geometry']['B']:.2f} m")
+        c3.metric(t("height_h"), f"{res['Geometry']['h']:.2f} m")
+        st.divider()
 
-    col_left, col_right = st.columns(2)
+        col_left, col_right = st.columns(2)
 
-    with col_left:
-        st.subheader(f"{t('rebar_b')} ({res['Geometry']['B']:.2f}m)")
-        st.caption(f"{t('req_area')} : {res['Ab_req']:.2f} cm²" + ("/ml" if cat_semelle=="cont" else ""))
-        if res['options_B']:
-            df_b = pd.DataFrame(res['options_B'])
-            df_b = df_b.drop(columns=["Excess"]) # Drop it BEFORE translating
-            st.dataframe(translate_df_columns(df_b), use_container_width=True, hide_index=True)
-        else:
-            st.error(t("no_rebar"))
+        with col_left:
+            st.subheader(f"{t('rebar_b')} ({res['Geometry']['B']:.2f}m)")
+            st.caption(f"{t('req_area')} : {res['Ab_req']:.2f} cm²" + ("/ml" if cat_semelle=="cont" else ""))
+            if res['options_B']:
+                df_b = pd.DataFrame(res['options_B'])
+                df_b = df_b.drop(columns=["Excess"])
+                st.dataframe(translate_df_columns(df_b), use_container_width=True, hide_index=True)
+            else:
+                st.error(t("no_rebar"))
 
-    with col_right:
-        st.subheader(f"{t('rebar_a')} ({res['Geometry']['A']:.2f}m)")
-        st.caption(f"{t('req_area')} : {res['Aa_req']:.2f} cm²" + (" (Répartition)" if cat_semelle=="cont" else ""))
-        if res['options_A']:
-            df_a = pd.DataFrame(res['options_A'])
-            df_a = df_a.drop(columns=["Excess"]) # Drop it BEFORE translating
-            st.dataframe(translate_df_columns(df_a), use_container_width=True, hide_index=True)
-        else:
-            st.error(t("no_rebar"))
+        with col_right:
+            st.subheader(f"{t('rebar_a')} ({res['Geometry']['A']:.2f}m)")
+            st.caption(f"{t('req_area')} : {res['Aa_req']:.2f} cm²" + (" (Répartition)" if cat_semelle=="cont" else ""))
+            if res['options_A']:
+                df_a = pd.DataFrame(res['options_A'])
+                df_a = df_a.drop(columns=["Excess"])
+                st.dataframe(translate_df_columns(df_a), use_container_width=True, hide_index=True)
+            else:
+                st.error(t("no_rebar"))
 
-    st.info(t("strategy_note"))
+        st.info(t("strategy_note"))
 
-    st.divider()
-    if st.button("💾 Enregistrer dans le projet / Save to Project", key="save_foot"):
-        log_entry = {
-            "Repère": element_id,
-            "Type": res['Type'],
-            "Nu (MN)": nu,
-            "Section Adop. (cm²)": None,
-            "Cadres (Φt)": None,
-            "Espacement (cm)": None,
-            "Dimensions (m)": f"{res['Geometry']['A']:.2f} x {res['Geometry']['B']:.2f}",
-            "Armatures A (cm²)": res['Aa_req'],
-            "Armatures B (cm²)": res['Ab_req']
-        }
-        st.session_state.project_log.append(log_entry)
-        st.success(f"Élément {element_id} ajouté au journal.")
+        # 4. SAVE LOGIC
+        st.divider()
+        if st.button("💾 Enregistrer dans le projet / Save to Project", key="save_foot"):
+            log_entry = {
+                "Repère": element_id,
+                "Type": res['Type'],
+                "Nu (MN)": nu,
+                "Section Adop. (cm²)": None,
+                "Cadres (Φt)": None,
+                "Espacement (cm)": None,
+                "Dimensions (m)": f"{res['Geometry']['A']:.2f} x {res['Geometry']['B']:.2f}",
+                "Armatures A (cm²)": res['Aa_req'],
+                "Armatures B (cm²)": res['Ab_req']
+            }
+            st.session_state.project_log.append(log_entry)
+            st.success(f"Élément {element_id} ajouté au journal.")
+
+    except ValueError as e:
+        # If design_custom raises a ValueError (soil capacity exceeded), execution stops here
+        st.error(f"⚠️ {e}")
 
 # --- PROJECT LOG & EXPORT SYSTEM ---
 st.divider()
