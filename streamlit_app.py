@@ -186,6 +186,7 @@ class ColumnsSystem:
         Br = ((0.9 * Yb) / alpha) * (Nu / fc28)
         if st_type == "rect":
             a = math.ceil(((math.sqrt(12) * Lf) / landa) * 20) / 20
+            a = max(a, 0.25)
             b_calc = math.ceil(((Br / (a - 0.02)) + 0.02) * 20) / 20
             b = a if b_calc < a else b_calc
             return {"type": "rect", "a": a, "b": b, "D": None, "Br_pre": round(Br, 4)}
